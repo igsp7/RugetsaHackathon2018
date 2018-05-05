@@ -210,9 +210,6 @@ public class MainActivity extends AppCompatActivity {
         }
         for(int i=0;i<visited.size();i++)
             Log.e("visited:",visited.get(i).getName());
-
-
-
     }
     public Edge returnShortestEdge(Node node){
         int index=0;
@@ -225,4 +222,36 @@ public class MainActivity extends AppCompatActivity {
 
         return node.getEdgesSorted().get(index);
     }
+    public void dijkstra(Node start,Node end) {
+        HashMap<Node,Double> dijkstraHP = new HashMap<>();
+        dijkstraHP.put(start,0d);
+        ArrayList<Node> dijkstraAlUnvisited = new ArrayList<>();
+        dijkstraAlUnvisited.addAll(networkHP.values());
+        for(int i = 0 ; i < dijkstraAlUnvisited.size(); i++)
+        {
+            dijkstraHP.put(dijkstraAlUnvisited.get(i),99999999d);
+        }
+        dijkstraHP.put(start,0d);
+
+        while(dijkstraAlUnvisited.size()>0){
+            Node currentNode =nearestKnownVertex(dijkstraHP);
+            
+        }
+
+    }
+    public Node nearestKnownVertex(HashMap<Node,Double> dijkstraHP){
+
+        Set set = dijkstraHP.entrySet();
+        Iterator iterator = set.iterator();
+        Node minNode = (Node) networkHP.entrySet().toArray()[0];
+        double min = dijkstraHP.get(minNode);
+        while(iterator.hasNext()) {
+            Map.Entry mEntry = (Map.Entry) iterator.next();
+            min = (Double) mEntry.getValue();
+            minNode = (Node) mEntry.getKey();
+        }
+
+        return minNode;
+    }
+
 }
