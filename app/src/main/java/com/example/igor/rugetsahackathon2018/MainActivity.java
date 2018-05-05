@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,12 +28,23 @@ public class MainActivity extends AppCompatActivity {
    private Node AgEleni;
    private Node Peponia;
    private HashMap<String,Node> networkHP;
+   private ArrayList<Node> unvisited = new ArrayList<>();
+   private ArrayList<Node> visited = new ArrayList<>();
+   private double travelledDistance = 0;
+
+   private Button button;
+   private Button button1;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.main_activity_layout);
+        button=findViewById(R.id.button);
+        button1 = findViewById(R.id.button2);
+
         InitializeNodes();
+        Log.e("hey","hey");
 
         //Adding the edges to Serres
         addEdgesToNode(Serres,Provatas,11.3);
@@ -82,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
         addEdgesToNode(Adelfiko,Koumaria,2.5);
         addEdgesToNode(Adelfiko,Peponia,6.7);
 
+        Serres.addNeighborsWithDistance();
+
         networkHP.put(Serres.getName(),Serres);
         networkHP.put(Provatas.getName(),Provatas);
         networkHP.put(kMitrousi.getName(),kMitrousi);
@@ -94,7 +110,21 @@ public class MainActivity extends AppCompatActivity {
         networkHP.put(Adelfiko.getName(),Adelfiko);
 
 
-        calculateShortestPath();
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makeSortedArrayListToEachNode();
+            }
+        });
+
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calculateShortestPath();
+                Log.e("Distance",travelledDistance+"");
+            }
+        });
 
     }
     public void InitializeNodes() {
@@ -120,40 +150,79 @@ public class MainActivity extends AppCompatActivity {
     public HashMap<String,Node> getNetworkHP(){
         return networkHP;
     }
-    public void calculateShortestPath()
+    public void makeSortedArrayListToEachNode()
     {
         ArrayList<Node> allNodes = new ArrayList<>();
         ArrayList<Node> visited = new ArrayList<>();
+
+        Log.e("hey","hey");
+
         HashMap<String,Edge> neighborsHP;
-        Node start =networkHP.get("Serres");
-        visited.add(start);
 
         Set set = networkHP.entrySet();
         Iterator iterator = set.iterator();
         while(iterator.hasNext()){
             Map.Entry mEntry = (Map.Entry) iterator.next();
-            allNodes.add((Node)mEntry.getValue());
             Node node = (Node)mEntry.getValue();
-            neighborsHP=node.getNeighbors();
+            neighborsHP= node.getNeighbors();
+            node.clearSortedAL();
 
             Set set1 = neighborsHP.entrySet();
             Iterator iterator1 = set1.iterator();
-            Edge minEdge =(Edge) node.getNeighbors().values().toArray()[0];
-            Double min = minEdge.getWeight();
-            while(iterator1.hasNext())
-            {
-                Map.Entry mEntry1 = (Map.Entry) iterator1.next();
-                Edge edge = (Edge) mEntry1.getValue();
-                Double weight = edge.getWeight();
-                if(weight<min){
-                    min=weight;
-                    minEdge=edge;
-                }
+            while (iterator1.hasNext()) {
+                    Map.Entry mEntry1 = (Map.Entry) iterator1.next();
+                    Edge edge = (Edge) mEntry1.getValue();
+                    node.setToArrayList(edge);
             }
-            Log.e("MinEdge","The min edge of " + node.getName() + " is " + minEdge.getNeighbor().getName() + " : " + min);
+            Collections.sort(node.getEdgesSorted(),new Comparator<Edge>(){
+                public int compare(Edge edge, Edge edge1) {
+                    return edge.getWeight()> edge1.getWeight() ? 1 : (edge.getWeight() < edge1.getWeight()) ? -1 : 0;
+                }
+            });
+            for(int i=0;i<node.getEdgesSorted().size();i++){
+                Log.e(node.getName(),node.getEdgesSorted().get(i).getWeight()+"\n");
+            }
+        }
+    }
+    public void calculateShortestPath()
+    {
+        Node start = networkHP.get("Serres");
+        start.setVisited(true);
+        visited.clear();
+        unvisited.clear();
+
+        unvisited.addAll(networkHP.values());
+        unvisited.remove(start);
+        visited.add(start);
+
+        Node currentNode = start;
+
+        while(unvisited.size()!=3){
+            Edge shortestEdge = returnShortestEdge(currentNode);
+            if(shortestEdge!=null) {
+                currentNode=shortestEdge.getNeighbor();
+                currentNode.setVisited(true);
+                visited.add(currentNode);
+                unvisited.remove(currentNode);
+                travelledDistance += shortestEdge.getWeight();
+            }
+
+        }
+        for(int i=0;i<visited.size();i++)
+            Log.e("visited:",visited.get(i).getName());
+
+
+
+    }
+    public Edge returnShortestEdge(Node node){
+        int index=0;
+        if(node.getEdgesSorted().get(index).getNeighbor().isVisited()) {
+            index++;
+            if(index>node.getEdgesSorted().size())
+                return null;
         }
 
 
-
+        return node.getEdgesSorted().get(index);
     }
 }
