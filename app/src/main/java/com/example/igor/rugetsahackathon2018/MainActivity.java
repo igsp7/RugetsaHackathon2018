@@ -1,8 +1,13 @@
 package com.example.igor.rugetsahackathon2018;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,33 +31,84 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        InitializeNodes();
+       // InitializeNodes();
+        //getting permissions for api>22
+        isReadStoragePermissionGranted();
+        FileOpener opener = new FileOpener("that.txt");
 
-        //Adding the edges to Serres
-        addEdgesToNode(Serres,Provatas,11.3);
-        addEdgesToNode(Serres,kMitrousi,8.8);
-        addEdgesToNode(Serres,Skoutari,7.3);
-
-        //Adding the edges to Provatas
-        addEdgesToNode(Provatas,Serres,11.3);
-        addEdgesToNode(Provatas,aKamila,22.6);
-
-        //Adding the edges to kMitrousi
-        addEdgesToNode(kMitrousi,Serres,8.8);
-        addEdgesToNode(kMitrousi,aKamila,3.1);
-        addEdgesToNode(kMitrousi,kKamila,7.3);
-        addEdgesToNode(kMitrousi,Koumaria,5.5);
-
-        //Adding the edges to Skoutari
-        addEdgesToNode(Skoutari,kKamila,3.5);
-        addEdgesToNode(Skoutari,Peponia,4.2);
-        addEdgesToNode(Skoutari,AgEleni,4.5);
-        addEdgesToNode(Skoutari,Serres,7.3);
-
-        //Adding the edges to A.Kamilla
+        ArrayList<Node> nodesFromFile = new ArrayList<>();
+        nodesFromFile = opener.getOurFileTypeList();
+       //basic printing data for checking
+        Log.w("ALEXANDER TAG", nodesFromFile.get(0).getNeighbor("Provatas").getNeighbor().getName());
+//        //Adding the edges to Serres
+//        addEdgesToNode(Serres,Provatas,11.3);
+//        addEdgesToNode(Serres,kMitrousi,8.8);
+//        addEdgesToNode(Serres,Skoutari,7.3);
+//
+//        //Adding the edges to Provatas
+//        addEdgesToNode(Provatas,Serres,11.3);
+//        addEdgesToNode(Provatas,aKamila,22.6);
+//
+//        //Adding the edges to kMitrousi
+//        addEdgesToNode(kMitrousi,Serres,8.8);
+//        addEdgesToNode(kMitrousi,aKamila,3.1);
+//        addEdgesToNode(kMitrousi,kKamila,7.3);
+//        addEdgesToNode(kMitrousi,Koumaria,5.5);
+//
+//        //Adding the edges to Skoutari
+//        addEdgesToNode(Skoutari,kKamila,3.5);
+//        addEdgesToNode(Skoutari,Peponia,4.2);
+//        addEdgesToNode(Skoutari,AgEleni,4.5);
+//        addEdgesToNode(Skoutari,Serres,7.3);
+//
+//        //Adding the edges to A.Kamilla
 
 
     }
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 2:
+                Log.d("fdf", "External storage2");
+                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    Log.v("fsdf","Permission: "+permissions[0]+ "was "+grantResults[0]);
+
+                }else{
+
+                }
+                break;
+
+            case 3:
+                Log.d("asd", "External storage1");
+                if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+                    Log.v("asdad","Permission: "+permissions[0]+ "was "+grantResults[0]);
+                    //resume tasks needing this permission
+
+                }else{
+                    //progress.dismiss();
+                }
+                break;
+        }
+    }
+    public  boolean isReadStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("that","Permission is granted1");
+                return true;
+            } else {
+
+                Log.v("that","Permission is revoked1");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 3);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v("that","Permission is granted1");
+            return true;
+        }
+    }
+
     public void InitializeNodes() {
         networkHP = new HashMap<>();
         Serres = new Node("Serres",23.541016f,23.541016f);

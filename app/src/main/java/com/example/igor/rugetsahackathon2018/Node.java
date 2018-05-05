@@ -1,16 +1,22 @@
 package com.example.igor.rugetsahackathon2018;
 
+import android.util.Log;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Node {
     private String name;
     private HashMap<String,Edge> neighborsHM = new HashMap<>();
+    private ArrayList<Node> visitedNodes = new ArrayList<>();
 
-    private float latitude;
-    private float longitude;
+    private double latitude;
+    private double longitude;
 
+    public Node() {
 
-    public Node(String name, float latitude, float longitude) {
+    }
+    public Node(String name, double latitude, double longitude) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -19,10 +25,14 @@ public class Node {
     public String getName() {
         return name;
     }
+    public void printData() {
+        Log.w("ALEXANDER PRINTING INSIDE NODE CLASS", name + latitude + longitude + neighborsHM.get("Provatas").getNeighbor().getName());
+    }
 
     public HashMap<String,Edge> getNeighbors() {
         return neighborsHM;
     }
+
     public Edge getNeighbor(String neighborName)
     {
         return neighborsHM.get(neighborName);
@@ -47,7 +57,7 @@ public class Node {
         neighborsHM.clear();
     }
 
-    public void setCoordinates(float latitude,float longitude) {
+    public void setCoordinates(double latitude,double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }

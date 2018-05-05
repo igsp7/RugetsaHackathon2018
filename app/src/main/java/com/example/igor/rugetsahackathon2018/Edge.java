@@ -4,7 +4,9 @@ public class Edge {
     private Node neighbor;
     private double weight;
 
+    public Edge() {
 
+    }
     public Edge(Node neighbor, double weight) {
         this.neighbor = neighbor;
         this.weight = weight;
