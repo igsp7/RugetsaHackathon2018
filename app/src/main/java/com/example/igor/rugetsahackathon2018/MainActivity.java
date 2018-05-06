@@ -28,12 +28,18 @@ public class MainActivity extends AppCompatActivity {
    private Node AgEleni;
    private Node Peponia;
    private HashMap<String,Node> networkHP;
+
    private ArrayList<Node> unvisited = new ArrayList<>();
    private ArrayList<Node> visited = new ArrayList<>();
    private double travelledDistance = 0;
 
-   private Button button;
+   private ArrayList<Node> dijkstraAlUnvisited;
+
+    private Button button;
    private Button button1;
+
+    //The return edge of returnShortestEdge method
+    private Edge returningEdge;
 
 
     @Override
@@ -197,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
         Node currentNode = start;
 
-        while(unvisited.size()!=3){
+        while(unvisited.size()>0){
             Edge shortestEdge = returnShortestEdge(currentNode);
             if(shortestEdge!=null) {
                 currentNode=shortestEdge.getNeighbor();
@@ -206,52 +212,102 @@ public class MainActivity extends AppCompatActivity {
                 unvisited.remove(currentNode);
                 travelledDistance += shortestEdge.getWeight();
             }
+            else{
+                dijkstra(currentNode);
+                ArrayList<Node> visitedNodes = new ArrayList<>();
+                Node visitingNode = unvisited.get(0);
+                visitedNodes.addAll(getHashMapRoute(visitingNode,currentNode));
+                visited.addAll(visitedNodes);
+
+                currentNode=visitingNode;
+                unvisited.remove(currentNode);
+
+            }
 
         }
+        Node endingNode = networkHP.get("Provatas");
+//        dijkstra(endingNode);
         for(int i=0;i<visited.size();i++)
             Log.e("visited:",visited.get(i).getName());
     }
     public Edge returnShortestEdge(Node node){
-        int index=0;
-        if(node.getEdgesSorted().get(index).getNeighbor().isVisited()) {
-            index++;
-            if(index>node.getEdgesSorted().size())
-                return null;
+
+        for(int i = 0;i<=node.getEdgesSorted().size();i++) {
+            if(i == node.getEdgesSorted().size())
+                returningEdge = null;
+            else{
+                if (!node.getEdgesSorted().get(i).getNeighbor().isVisited()) {
+                    returningEdge = node.getEdgesSorted().get(i);
+                    break;
+                }
+
+            }
+
         }
-
-
-        return node.getEdgesSorted().get(index);
+        return returningEdge;
     }
-    public void dijkstra(Node start,Node end) {
+    public void dijkstra(Node startingPoing) {
         HashMap<Node,Double> dijkstraHP = new HashMap<>();
-        dijkstraHP.put(start,0d);
-        ArrayList<Node> dijkstraAlUnvisited = new ArrayList<>();
+        dijkstraAlUnvisited = new ArrayList<>();
+
+
+
+
+
+        ArrayList<Node> dijkstraAlVisited = new ArrayList<>();
         dijkstraAlUnvisited.addAll(networkHP.values());
         for(int i = 0 ; i < dijkstraAlUnvisited.size(); i++)
         {
-            dijkstraHP.put(dijkstraAlUnvisited.get(i),99999999d);
+            dijkstraHP.put(dijkstraAlUnvisited.get(i),99999d);
         }
-        dijkstraHP.put(start,0d);
+        dijkstraHP.put(startingPoing,0d);
+        for(Map.Entry<Node,Double> entry : dijkstraHP.entrySet()){
+            entry.getKey().setVisitedDijkstra(false);
+            entry.getKey().setPreviousNode(null);
+        }
 
-        while(dijkstraAlUnvisited.size()>0){
+        while(dijkstraAlUnvisited.size()>1){
             Node currentNode =nearestKnownVertex(dijkstraHP);
-            
+            ArrayList<Edge> nodeEdgesAlSorted = currentNode.getEdgesSorted();
+            for(int i =0 ; i<nodeEdgesAlSorted.size(); i++){
+                if(!nodeEdgesAlSorted.get(i).getNeighbor().isVisitedDijkstra()) {
+                    Node visitingNode = nodeEdgesAlSorted.get(i).getNeighbor();
+                        Double currentDistanceFromStart = dijkstraHP.get(visitingNode);
+                        if (currentDistanceFromStart > nodeEdgesAlSorted.get(i).getWeight() + dijkstraHP.get(currentNode)) {
+                            dijkstraHP.put(visitingNode, nodeEdgesAlSorted.get(i).getWeight() + dijkstraHP.get(currentNode));
+                            visitingNode.setPreviousNode(currentNode);
+                        }
+
+
+
+                }
+            }
+            dijkstraAlVisited.add(currentNode);
+            dijkstraAlUnvisited.remove(currentNode);
+            currentNode.setVisitedDijkstra(true);
         }
 
     }
     public Node nearestKnownVertex(HashMap<Node,Double> dijkstraHP){
 
-        Set set = dijkstraHP.entrySet();
-        Iterator iterator = set.iterator();
-        Node minNode = (Node) networkHP.entrySet().toArray()[0];
-        double min = dijkstraHP.get(minNode);
-        while(iterator.hasNext()) {
-            Map.Entry mEntry = (Map.Entry) iterator.next();
-            min = (Double) mEntry.getValue();
-            minNode = (Node) mEntry.getKey();
+        Map.Entry<Node,Double> min = null;
+        for(Map.Entry<Node,Double> entry : dijkstraHP.entrySet())
+            if(min == null || (min.getValue() > entry.getValue() && !entry.getKey().isVisitedDijkstra())){
+                min=entry;
+            }
+        return min.getKey();
+    }
+    public ArrayList<Node> getHashMapRoute(Node node,Node currentNode) {
+        ArrayList<Node> alRoute = new ArrayList<>();
+        while(node!=currentNode) {
+            alRoute.add(node);
+            Edge edge = node.getNeighbors().get(node.getPreviousNode().getName());
+            travelledDistance +=edge.getWeight();
+            node = node.getPreviousNode();
         }
+        Collections.reverse(alRoute);
+        return alRoute;
 
-        return minNode;
     }
 
 }
