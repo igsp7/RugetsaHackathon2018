@@ -3,7 +3,11 @@ package com.example.igor.rugetsahackathon2018;
 public class Edge {
     private Node neighbor;
     private double weight;
+    private boolean isNull = false;
 
+    public Edge(){
+
+    }
 
     public Edge(Node neighbor, double weight) {
         this.neighbor = neighbor;

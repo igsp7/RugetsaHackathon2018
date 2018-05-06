@@ -11,14 +11,24 @@ public class Node {
     private HashMap<String,Edge> neighborsHM = new HashMap<>();
     private HashMap<Double,Edge> neighborsDistanceHM = new HashMap<>();
     private ArrayList<Edge> edgesSorted = new ArrayList<>();
+    private Node previousNode;
 
     private float latitude;
     private float longitude;
 
     private boolean isVisited;
+    private boolean visitedDijkstra;
 
     public boolean isVisited() {
         return isVisited;
+    }
+
+    public boolean isVisitedDijkstra() {
+        return visitedDijkstra;
+    }
+
+    public void setVisitedDijkstra(boolean visitedDijkstra) {
+        this.visitedDijkstra = visitedDijkstra;
     }
 
     public Node(String name, float latitude, float longitude) {
@@ -26,6 +36,7 @@ public class Node {
         this.latitude = latitude;
         this.longitude = longitude;
         this.isVisited=false;
+        this.visitedDijkstra=false;
     }
 
     public String getName() {
@@ -39,7 +50,13 @@ public class Node {
     public HashMap<Double, Edge> getNeighborsDistanceHM() {
         return neighborsDistanceHM;
     }
+    public void setPreviousNode(Node node){
+        this.previousNode=node;
+    }
 
+    public Node getPreviousNode() {
+        return previousNode;
+    }
 
     public HashMap<String,Edge> getNeighbors() {
         return neighborsHM;
