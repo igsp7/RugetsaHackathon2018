@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,10 +16,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,7 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class MapsActivityManual extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivityManual extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private ArrayList<LatLng> listPoints;
@@ -47,13 +50,19 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
 
     private ArrayList<Node> unvisited = new ArrayList<>();
     private ArrayList<Node> visited = new ArrayList<>();
+
     private double travelledDistance = 0;
 
     private ArrayList<Node> dijkstraAlUnvisited;
     private HashMap<Node,Double> dijkstraHP;
 
+    private ArrayList<Marker> markers = new ArrayList<>();
+
     private Button btn_ba;
     private Button button1;
+    private TextView textview;
+
+    private Marker myMarker;
 
     //The return edge of returnShortestEdge method
     private Edge returningEdge;
@@ -70,6 +79,8 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
         btnRoutes= (Button) findViewById(R.id.btnBestRoute);
         btnClear=(Button) findViewById(R.id.btn_clear);
         btn_ba=(Button) findViewById(R.id.btn_ba);
+        textview=(TextView)findViewById(R.id.diadromi);
+
         btnRoutes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -90,6 +101,11 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
                 calculateShortestPath();
                 Log.e("Distance",travelledDistance+"");
                 drawRoute();
+                for (int i=0;i<visited.size();i++)
+                {
+                    textview.setText(textview.getText()+visited.get(i).getName()+"->");
+                }
+                textview.setText(textview.getText()+String.valueOf(travelledDistance+"KM"));
             }
         });
 
@@ -161,6 +177,9 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
         networkHP.put(Adelfiko.getName(),Adelfiko);
 
 
+
+
+
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -186,6 +205,7 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
                 {
                     //add markers
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+
                 }
                 else if(listPoints.size()==2)
                 {
@@ -203,13 +223,13 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
                 else if(listPoints.size()==4)
                 {
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(2),listPoints.get(3)).color(Color.RED));
+                   mMap.addPolyline(new PolylineOptions().add(listPoints.get(2),listPoints.get(3)).color(Color.RED));
                     System.out.println(getDistance(listPoints.get(2),listPoints.get(3)));
                 }
                 else if(listPoints.size()==5)
                 {
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(3),listPoints.get(4)).color(Color.RED));
+                   mMap.addPolyline(new PolylineOptions().add(listPoints.get(3),listPoints.get(4)).color(Color.RED));
                 }
                 else if(listPoints.size()==6)
                 {
@@ -224,7 +244,7 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
                 else if(listPoints.size()==8)
                 {
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(6),listPoints.get(7)).color(Color.RED));
+                   mMap.addPolyline(new PolylineOptions().add(listPoints.get(6),listPoints.get(7)).color(Color.RED));
                 }
                 else if(listPoints.size()==9)
                 {
@@ -234,12 +254,14 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
                 else if(listPoints.size()==10)
                 {
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
-                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(8),listPoints.get(9)).color(Color.RED));
+                   mMap.addPolyline(new PolylineOptions().add(listPoints.get(8),listPoints.get(9)).color(Color.RED));
                 }
                 mMap.addMarker(markerOptions);
             }
 
+
         });
+
     }
     private void clearPoints()
     {
@@ -467,5 +489,19 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
         }
         }
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if (marker.equals(myMarker))
+        {
+            Log.e("test", "onMarkerClick: LOL" );
+        }
+
+        return false;
     }
+    public void setUpMap()
+    {
+
+    }
+
+}
 

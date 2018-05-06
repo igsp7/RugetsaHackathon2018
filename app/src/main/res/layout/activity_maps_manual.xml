@@ -42,8 +42,7 @@
     <TextView
         android:id="@+id/diadromi"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:text="TextView" />
+        android:layout_height="69dp" />
 
     <fragment
         android:id="@+id/map"
