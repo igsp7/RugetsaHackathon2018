@@ -35,7 +35,7 @@ public class Node implements Serializable {
 
     }
 
-    public Node(String name, float latitude, float longitude) {
+    public Node(String name, double latitude, double longitude) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;

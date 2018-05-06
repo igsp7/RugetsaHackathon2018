@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.File;
+import java.util.ArrayList;
+
 public class MapsMainActivity extends AppCompatActivity {
 
     Button btn1;
@@ -21,7 +24,12 @@ public class MapsMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_maps_main);
         btn1 = (Button) findViewById(R.id.button);
         btn2 = (Button) findViewById(R.id.button2);
+        isReadStoragePermissionGranted();
 
+        FileOpener opener = new FileOpener("that.txt");
+        ArrayList<Node> nodesFromFile = new ArrayList<>();
+        nodesFromFile = opener.getOurFileTypeList();
+        Log.w("ALEXANDER", nodesFromFile.get(2).getName());
         final Intent mapsMan = new Intent(MapsMainActivity.this, MapsActivityManual.class);
         final Intent maps = new Intent(MapsMainActivity.this, MapsActivity.class);
 
@@ -40,7 +48,6 @@ public class MapsMainActivity extends AppCompatActivity {
             }
         });
 
-        isReadStoragePermissionGranted();
 
     }
         public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
