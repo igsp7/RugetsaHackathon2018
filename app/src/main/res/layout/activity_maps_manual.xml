@@ -1,0 +1,54 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.igor.rugetsahackathon2018.MapsActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/btnBestRoute"
+            android:layout_width="147dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_btn"
+            android:text="Find Best Route" />
+
+        <Button
+            android:id="@+id/btn_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/round_btn"
+            android:text="Clear Points" />
+
+        <Button
+            android:id="@+id/btn_ba"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/round_btn"
+            android:text="B.1" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/diadromi"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="TextView" />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

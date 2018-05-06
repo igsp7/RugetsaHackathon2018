@@ -1,12 +1,22 @@
 package com.example.igor.rugetsahackathon2018;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -17,40 +27,72 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity {
+public class MapsActivityManual extends FragmentActivity implements OnMapReadyCallback {
 
-   private Node Serres ;
-   private Node Provatas;
-   private Node aKamila;
-   private Node kKamila;
-   private Node kMitrousi;
-   private Node Koumaria;
-   private Node Skoutari;
-   private Node Adelfiko;
-   private Node AgEleni;
-   private Node Peponia;
-   private HashMap<String,Node> networkHP;
+    private GoogleMap mMap;
+    private ArrayList<LatLng> listPoints;
+    private Button btnRoutes,btnClear;
 
-   private ArrayList<Node> unvisited = new ArrayList<>();
-   private ArrayList<Node> visited = new ArrayList<>();
-   private double travelledDistance = 0;
+    private Node Serres ;
+    private Node Provatas;
+    private Node aKamila;
+    private Node kKamila;
+    private Node kMitrousi;
+    private Node Koumaria;
+    private Node Skoutari;
+    private Node Adelfiko;
+    private Node AgEleni;
+    private Node Peponia;
+    private HashMap<String,Node> networkHP;
 
-   private ArrayList<Node> dijkstraAlUnvisited;
-   private HashMap<Node,Double> dijkstraHP;
+    private ArrayList<Node> unvisited = new ArrayList<>();
+    private ArrayList<Node> visited = new ArrayList<>();
+    private double travelledDistance = 0;
 
-    private Button button;
-   private Button button1;
+    private ArrayList<Node> dijkstraAlUnvisited;
+    private HashMap<Node,Double> dijkstraHP;
+
+    private Button btn_ba;
+    private Button button1;
 
     //The return edge of returnShortestEdge method
     private Edge returningEdge;
 
-
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity_layout);
-        button=findViewById(R.id.button);
-        button1 = findViewById(R.id.button2);
+        setContentView(R.layout.activity_maps_manual);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        listPoints = new ArrayList<>(10);
+        btnRoutes= (Button) findViewById(R.id.btnBestRoute);
+        btnClear=(Button) findViewById(R.id.btn_clear);
+        btn_ba=(Button) findViewById(R.id.btn_ba);
+        btnRoutes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        btnClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearPoints();
+            }
+        });
+
+        btn_ba.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                makeSortedArrayListToEachNode();
+                calculateShortestPath();
+                Log.e("Distance",travelledDistance+"");
+                drawRoute();
+            }
+        });
+
 
         InitializeNodes();
         Log.e("hey","hey");
@@ -119,28 +161,98 @@ public class MainActivity extends AppCompatActivity {
         networkHP.put(Adelfiko.getName(),Adelfiko);
 
 
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                makeSortedArrayListToEachNode();
-            }
-        });
-
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                calculateShortestPath();
-                Intent intent = new Intent(MainActivity.this,MapsActivityManual.class);
-                Bundle bundle=new Bundle();
-                bundle.putSerializable("visited",(Serializable) visited);
-                intent.putExtras(bundle);
-                Log.e("Distance",travelledDistance+"");
-                startActivity(intent);
-            }
-        });
-
     }
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        // Add a marker in Sydney and move the camera
+        LatLng serres = new LatLng(41.092083, 23.541016);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(serres, 12));
+        mMap.addMarker(new MarkerOptions().position(serres));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(serres));
+        mMap.clear();
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                if(listPoints.size()==10) //clear otan ftasei sta 10 shmeia
+                {
+                    clearPoints();
+                }
+                listPoints.add(latLng);
+                MarkerOptions markerOptions=new MarkerOptions();
+                markerOptions.position(latLng);
+                if(listPoints.size()==1)
+                {
+                    //add markers
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                }
+                else if(listPoints.size()==2)
+                {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(0),listPoints.get(1)).color(Color.RED));
+                    double distance = getDistance(listPoints.get(0),listPoints.get(1));
+                    System.out.println(String.valueOf(distance));
+                }
+                else if(listPoints.size()==3)
+                {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(1),listPoints.get(2)).color(Color.RED));
+                    System.out.println(getDistance(listPoints.get(1),listPoints.get(2)));
+                }
+                else if(listPoints.size()==4)
+                {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(2),listPoints.get(3)).color(Color.RED));
+                    System.out.println(getDistance(listPoints.get(2),listPoints.get(3)));
+                }
+                else if(listPoints.size()==5)
+                {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(3),listPoints.get(4)).color(Color.RED));
+                }
+                else if(listPoints.size()==6)
+                {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
+                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(4),listPoints.get(5)).color(Color.RED));
+                }
+                else if(listPoints.size()==7)
+                {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(5),listPoints.get(6)).color(Color.RED));
+                }
+                else if(listPoints.size()==8)
+                {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(6),listPoints.get(7)).color(Color.RED));
+                }
+                else if(listPoints.size()==9)
+                {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(7),listPoints.get(8)).color(Color.RED));
+                }
+                else if(listPoints.size()==10)
+                {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                    mMap.addPolyline(new PolylineOptions().add(listPoints.get(8),listPoints.get(9)).color(Color.RED));
+                }
+                mMap.addMarker(markerOptions);
+            }
+
+        });
+    }
+    private void clearPoints()
+    {
+        listPoints.clear();
+        mMap.clear();
+    }
+    private float getDistance(LatLng point1,LatLng point2)
+    {
+        float distResult[]= new float [10];
+        Location.distanceBetween(point1.latitude,point1.longitude,point2.latitude,point2.longitude,distResult);
+        return distResult[0];
+    }
+
     public void InitializeNodes() {
         networkHP = new HashMap<>();
         Serres = new Node("Serres",41.092083f,23.541016f);
@@ -184,9 +296,9 @@ public class MainActivity extends AppCompatActivity {
             Set set1 = neighborsHP.entrySet();
             Iterator iterator1 = set1.iterator();
             while (iterator1.hasNext()) {
-                    Map.Entry mEntry1 = (Map.Entry) iterator1.next();
-                    Edge edge = (Edge) mEntry1.getValue();
-                    node.setToArrayList(edge);
+                Map.Entry mEntry1 = (Map.Entry) iterator1.next();
+                Edge edge = (Edge) mEntry1.getValue();
+                node.setToArrayList(edge);
             }
             Collections.sort(node.getEdgesSorted(),new Comparator<Edge>(){
                 public int compare(Edge edge, Edge edge1) {
@@ -285,13 +397,11 @@ public class MainActivity extends AppCompatActivity {
             for(int i =0 ; i<nodeEdgesAlSorted.size(); i++){
                 if(!nodeEdgesAlSorted.get(i).getNeighbor().isVisitedDijkstra()) {
                     Node visitingNode = nodeEdgesAlSorted.get(i).getNeighbor();
-                        Double currentDistanceFromStart = dijkstraHP.get(visitingNode);
-                        if (currentDistanceFromStart > nodeEdgesAlSorted.get(i).getWeight() + dijkstraHP.get(currentNode)) {
-                            dijkstraHP.put(visitingNode, nodeEdgesAlSorted.get(i).getWeight() + dijkstraHP.get(currentNode));
-                            visitingNode.setPreviousNode(currentNode);
-                        }
-
-
+                    Double currentDistanceFromStart = dijkstraHP.get(visitingNode);
+                    if (currentDistanceFromStart > nodeEdgesAlSorted.get(i).getWeight() + dijkstraHP.get(currentNode)) {
+                        dijkstraHP.put(visitingNode, nodeEdgesAlSorted.get(i).getWeight() + dijkstraHP.get(currentNode));
+                        visitingNode.setPreviousNode(currentNode);
+                    }
 
                 }
             }
@@ -329,4 +439,33 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-}
+    public void drawRoute()
+    {
+
+
+
+        for(int i=0;i<visited.size();i++)
+        {
+            LatLng cord1=new LatLng(visited.get(i).getLatitude(),visited.get(i).getLongitude());
+                HashMap<String,Edge> neighbors = visited.get(i).getNeighbors();
+                Set set = neighbors.entrySet();
+                Iterator iterator = set.iterator();
+                while(iterator.hasNext()){
+                    Map.Entry mentry = (Map.Entry)iterator.next();
+                    Edge edge =(Edge) mentry.getValue();
+                    LatLng cord2=new LatLng(edge.getNeighbor().getLatitude(),edge.getNeighbor().getLongitude());
+                    mMap.addPolyline(new PolylineOptions().add(cord1,cord2).color(Color.GRAY).width(5));
+                }
+            }
+
+
+        for(int i=1;i<visited.size();i++)
+        {
+            LatLng cord1 = new LatLng(visited.get(i-1).getLatitude(),visited.get(i-1).getLongitude());
+            LatLng cord2 = new LatLng(visited.get(i).getLatitude(),visited.get(i).getLongitude());
+            mMap.addPolyline(new PolylineOptions().add(cord1,cord2).color(Color.RED).width(20));
+        }
+        }
+
+    }
+

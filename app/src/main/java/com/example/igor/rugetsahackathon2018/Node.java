@@ -1,20 +1,21 @@
 package com.example.igor.rugetsahackathon2018;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class Node {
+public class Node implements Serializable {
     private String name;
     private HashMap<String,Edge> neighborsHM = new HashMap<>();
     private HashMap<Double,Edge> neighborsDistanceHM = new HashMap<>();
     private ArrayList<Edge> edgesSorted = new ArrayList<>();
     private Node previousNode;
 
-    private float latitude;
-    private float longitude;
+    private double latitude;
+    private double longitude;
 
     private boolean isVisited;
     private boolean visitedDijkstra;
