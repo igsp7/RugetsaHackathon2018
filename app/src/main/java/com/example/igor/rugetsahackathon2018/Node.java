@@ -30,6 +30,9 @@ public class Node {
     public void setVisitedDijkstra(boolean visitedDijkstra) {
         this.visitedDijkstra = visitedDijkstra;
     }
+    public Node(){
+
+    }
 
     public Node(String name, float latitude, float longitude) {
         this.name = name;
