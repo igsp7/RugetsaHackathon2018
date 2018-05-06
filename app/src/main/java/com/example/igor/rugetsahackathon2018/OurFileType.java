@@ -48,10 +48,8 @@ public class OurFileType {
         destNode = new Node(destName, destLat, destLng);
 
         //creating the origin node like from Serres to Provatas this is Serres Node
-        //TODO: CHANGE NEW NODE FUNC AND JUST ADD THE EDGE TO THE NODE IF IT EXISTS
-        if(originNode == null)
-            originNode = new Node(originName, originLat, originLng);
 
+        originNode = new Node(originName, originLat, originLng);
 
         //Adding the weight, meaning the distance from Serres (Origin Node) to Provatas(Destination Node) which is Serres's neighbour
         destNodeNei = new Edge(destNode, kmInBetween);
@@ -60,6 +58,12 @@ public class OurFileType {
         originNode.addNeighbor(destNodeNei);
 
         return originNode;
+    }
+    public Edge setEdgeOnly() {
+        destNode = new Node(destName, destLat, destLng);
+        destNodeNei = new Edge(destNode, kmInBetween);
+        //originNode.addNeighbor(destNodeNei);
+        return destNodeNei;
     }
 
     public Node getDestNode() {

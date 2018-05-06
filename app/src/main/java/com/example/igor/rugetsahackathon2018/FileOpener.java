@@ -44,46 +44,56 @@ public class FileOpener {
     //basic file opening functionality
     public void openFile(File file) {
         BufferedReader reader = null;
+        int i = -1;
         try {
             reader = new BufferedReader(new FileReader(fileFromDisk));
             ArrayList<String> dataOrdered = new ArrayList<>();
             String text = null;
-                while ((text = reader.readLine()) != null) {
-                    dataOrdered.clear();
+            while ((text = reader.readLine()) != null) {
+                dataOrdered.clear();
 
-                   //REGEX TO MATCH NUMBER VALUES...
-                    Pattern regex = Pattern.compile("(-?\\d+(?:\\.\\d+)?)");
-                    Matcher matcher = regex.matcher(text);
-                    while(matcher.find()) {
-                        dataOrdered.add(matcher.group(1));
-                    }
-                    ourFileType.setOriginLat(dataOrdered.get(0));
-                    ourFileType.setOriginLng(dataOrdered.get(1));
-                    ourFileType.setDestLat(dataOrdered.get(2));
-                    ourFileType.setDestLng(dataOrdered.get(3));
-                    ourFileType.setKmInBetween(dataOrdered.get(4));
-                    //here you need to use regex to get the wanted information
-                    dataOrdered.clear();
-
-
-                    //TODO: I H A T E REGEX
-                    //Regex to match text values
-                    regex = Pattern.compile("([a-zA-Z]+\\.?[\\s]?+[a-zA-Z]+[\\s]?[a-zA-Z]+)");
-                    Matcher matcher2 = regex.matcher(text);
-                    while(matcher2.find()){
-                        dataOrdered.add(matcher2.group(1));
+                //REGEX TO MATCH NUMBER VALUES...
+                Pattern regex = Pattern.compile("(-?\\d+(?:\\.\\d+)?)");
+                Matcher matcher = regex.matcher(text);
+                while(matcher.find()) {
+                    dataOrdered.add(matcher.group(1));
+                }
+                ourFileType.setOriginLat(dataOrdered.get(0));
+                ourFileType.setOriginLng(dataOrdered.get(1));
+                ourFileType.setDestLat(dataOrdered.get(2));
+                ourFileType.setDestLng(dataOrdered.get(3));
+                ourFileType.setKmInBetween(dataOrdered.get(4));
+                //here you need to use regex to get the wanted information
+                dataOrdered.clear();
 
 
-                    }
-                    ourFileType.setOriginName(dataOrdered.get(0));
-                    ourFileType.setDestName(dataOrdered.get(1));
-                    nodes.add(ourFileType.getOriginNode());
+                //TODO: I H A T E REGEX
+                //Regex to match text values
+                regex = Pattern.compile("([a-zA-Z]+\\.?[\\s]?+[a-zA-Z]+[\\s]?[a-zA-Z]+)");
+                Matcher matcher2 = regex.matcher(text);
+                while(matcher2.find()){
+                    dataOrdered.add(matcher2.group(1));
 
-                    //Log.w("Alexanders Tag",nodes.get(0).getNeighbor("Provatas").getNeighbor().getName());
 
                 }
+                ourFileType.setOriginName(dataOrdered.get(0));
+                ourFileType.setDestName(dataOrdered.get(1));
+                boolean isEqual = false;
+                if(nodes!= null) {
+                    for (Node each : nodes) {
+                        if(each.getName().equals(dataOrdered.get(0)))
+                            isEqual = true;
+                    }
+                }
+                if (isEqual) {
+                    nodes.get(i).addNeighbor(ourFileType.setEdgeOnly());
+                }
+                else {
+                    nodes.add(ourFileType.getOriginNode());
+                    i++;
+                }//Log.w("Alexanders Tag",nodes.get(0).getNeighbor("Provatas").getNeighbor().getName());
 
-
+            }
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();

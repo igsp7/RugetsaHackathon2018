@@ -84,7 +84,7 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
         btnRoutes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                bestRoute();
             }
         });
         btnClear.setOnClickListener(new View.OnClickListener() {
@@ -463,9 +463,6 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
 
     public void drawRoute()
     {
-
-
-
         for(int i=0;i<visited.size();i++)
         {
             LatLng cord1=new LatLng(visited.get(i).getLatitude(),visited.get(i).getLongitude());
@@ -476,17 +473,22 @@ public class MapsActivityManual extends FragmentActivity implements OnMapReadyCa
                     Map.Entry mentry = (Map.Entry)iterator.next();
                     Edge edge =(Edge) mentry.getValue();
                     LatLng cord2=new LatLng(edge.getNeighbor().getLatitude(),edge.getNeighbor().getLongitude());
-                    mMap.addPolyline(new PolylineOptions().add(cord1,cord2).color(Color.GRAY).width(5));
+                    mMap.addPolyline(new PolylineOptions().add(cord1,cord2).color(Color.GREEN).width(7));
                 }
             }
-
-
-        for(int i=1;i<visited.size();i++)
-        {
-            LatLng cord1 = new LatLng(visited.get(i-1).getLatitude(),visited.get(i-1).getLongitude());
-            LatLng cord2 = new LatLng(visited.get(i).getLatitude(),visited.get(i).getLongitude());
-            mMap.addPolyline(new PolylineOptions().add(cord1,cord2).color(Color.RED).width(20));
         }
+
+        public void bestRoute()
+        {
+            for(int i=1;i<visited.size();i++)
+            {
+                LatLng cord1 = new LatLng(visited.get(i-1).getLatitude(),visited.get(i-1).getLongitude());
+                LatLng cord2 = new LatLng(visited.get(i).getLatitude(),visited.get(i).getLongitude());
+                mMap.addPolyline(new PolylineOptions().add(cord1,cord2).color(Color.RED).width(20));
+                mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(cord2.latitude,cord2.longitude))
+                        .title(visited.get(i).getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+            }
         }
 
     @Override

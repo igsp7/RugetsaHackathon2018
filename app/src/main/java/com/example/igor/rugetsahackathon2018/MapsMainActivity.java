@@ -26,9 +26,14 @@ public class MapsMainActivity extends AppCompatActivity {
         btn2 = (Button) findViewById(R.id.button2);
         isReadStoragePermissionGranted();
 
-        FileOpener opener = new FileOpener("that.txt");
+        FileOpener opener = new FileOpener("testAlgo.txt");
         ArrayList<Node> nodesFromFile = new ArrayList<>();
         nodesFromFile = opener.getOurFileTypeList();
+        Log.e("Tag ALEXANDER", nodesFromFile.get(0).getName());
+        Log.e("Tag ALEXANDER", nodesFromFile.get(1).getName());
+        Log.e("Tag ALEXANDER", nodesFromFile.get(2).getName());
+
+
         Log.w("ALEXANDER", nodesFromFile.get(2).getName());
         final Intent mapsMan = new Intent(MapsMainActivity.this, MapsActivityManual.class);
         final Intent maps = new Intent(MapsMainActivity.this, MapsActivity.class);
