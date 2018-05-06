@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
    private double travelledDistance = 0;
 
    private ArrayList<Node> dijkstraAlUnvisited;
+   private HashMap<Node,Double> dijkstraHP;
 
     private Button button;
    private Button button1;
@@ -215,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             else{
                 dijkstra(currentNode);
                 ArrayList<Node> visitedNodes = new ArrayList<>();
-                Node visitingNode = unvisited.get(0);
+                Node visitingNode = unvisited.get(1);
                 visitedNodes.addAll(getHashMapRoute(visitingNode,currentNode));
                 visited.addAll(visitedNodes);
 
@@ -225,8 +226,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-        Node endingNode = networkHP.get("Provatas");
-//        dijkstra(endingNode);
+        Node endingNode = visited.get(visited.size()-1);
+        dijkstra(endingNode);
+        ArrayList<Node> visitedNodes = new ArrayList<>();
+        visitedNodes.addAll(getHashMapRoute(networkHP.get("Adelfiko"),endingNode));
+        visited.addAll(visitedNodes);
+
+
         for(int i=0;i<visited.size();i++)
             Log.e("visited:",visited.get(i).getName());
     }
@@ -247,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
         return returningEdge;
     }
     public void dijkstra(Node startingPoing) {
-        HashMap<Node,Double> dijkstraHP = new HashMap<>();
+        dijkstraHP = new HashMap<>();
         dijkstraAlUnvisited = new ArrayList<>();
 
 
@@ -290,16 +296,22 @@ public class MainActivity extends AppCompatActivity {
     }
     public Node nearestKnownVertex(HashMap<Node,Double> dijkstraHP){
 
-        Map.Entry<Node,Double> min = null;
-        for(Map.Entry<Node,Double> entry : dijkstraHP.entrySet())
-            if(min == null || (min.getValue() > entry.getValue() && !entry.getKey().isVisitedDijkstra())){
-                min=entry;
+        double min = 99999d;
+        Node minNode = new Node();
+
+        for(Node node : dijkstraHP.keySet()){
+            boolean isVisited = node.isVisitedDijkstra();
+
+            if((min > dijkstraHP.get(node) && !isVisited)){
+                min=dijkstraHP.get(node);
+                minNode=node;
             }
-        return min.getKey();
+        }
+        return minNode;
     }
-    public ArrayList<Node> getHashMapRoute(Node node,Node currentNode) {
+    public ArrayList<Node> getHashMapRoute(Node node,Node currentNode1) {
         ArrayList<Node> alRoute = new ArrayList<>();
-        while(node!=currentNode) {
+        while(node!=currentNode1) {
             alRoute.add(node);
             Edge edge = node.getNeighbors().get(node.getPreviousNode().getName());
             travelledDistance +=edge.getWeight();
